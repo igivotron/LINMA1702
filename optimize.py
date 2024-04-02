@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import linprog
 
 
-def Optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
+def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     """
     Optimize est une fonction qui optimise la production d'energie d'un nombre n de sites d'éoliennes 
     (situés sur terre, on-shore, ou en mer, off-shore), 
@@ -43,31 +43,47 @@ def Optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     ## Getting all the sizes
     t = np.size(ct)
     m = np.size(cm)
-    h = np.shape(Rt)[1]
+    h = np.shape(Rt)[1] if np.size(Rt) != 0 else 0
     if checkpoints :
-        print("Checking sizes, i want all True", t==np.shape(Rt)[0], m==np.shape(Rm)[0], h==np.shape(Rm)[1])
+        print("Checking sizes, i want all True :", t==np.shape(Rt)[0], m==np.shape(Rm)[0])
     n = t + m
+
+    if n==0 :
+        print("There are no values to the problem")
+        return 0
 
     ## Constructing the important c, R, A matrices
 
     # c is the concatenation of ct and cm
     c = np.concatenate((ct, cm))
     # R is the concatenation of Rt and Rm along the "eolien sites" axis
-    R = np.concatenate((Rt, Rm))
+    if np.size(Rt) != 0 and np.size(Rm) != 0 :
+        R = np.concatenate((Rt, Rm))
+    elif np.size(Rt) == 0 :
+        R = Rm
+    elif np.size(Rm) == 0 :
+        R = Rt
     if checkpoints :
-        print("Checking dimensions : is c ok ? is R ok ?", np.shape(c)==(n), np.shape(R)==(n,h))
+        print("Checking dimensions : is c ok ? is R ok ?", np.shape(c)==(n,), np.shape(R)==(n,h))
     # A is the line-product of c and R, so that in A, 
     # each "rendement" (as effective capacity/total capacity) is re-multiplied by total capacity
     A = c[:, np.newaxis] * R
 
+
     ## Constructing all the matrices of use for linprog
-    ## So that z (the objective) = coeffs @ v
+    ## v are the variables linprog will give us in return, v = (x|z)
+    ## z is the optimized objective linprog will give us in return
     ## A_ub @ v <= b_ub
     ## A_eq @ v == b_eq
 
-    ## max (min (x@a)) = max z ; z <= x@a
-    ## where a is a column of A, of size n
-    ## there are h values for x@a and we want to maximize the smaller one
+    ## max (min (x@aj)) = max z ; z <= x@aj
+    ## where aj is a column of A, of size n
+    ## there are h values for x@aj and we want to maximize the smaller one (z)
+
+    
+    # Contraintes d'inégalité (A_ub, b_ub) :
+    # 0 <= x <= 1 pour tout x
+    # z <= (aj)Tx pour tout aj colonne de A
 
     In = np.identity(n)
     A_ub1 = np.concatenate((In,-In))
@@ -76,7 +92,7 @@ def Optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     A_ub1 = np.concatenate((A_ub1, np.zeros((2*n))[:, np.newaxis]), axis = 1)
     if checkpoints :
         print("Checking construction of A_ub : is A_ub1 shape correct ?", np.shape(A_ub1)==(2*n, n+1))
-    A_ub2 = np.concatenate((np.transpose(A), np.ones((h))[:, np.newaxis]), axis = 1)
+    A_ub2 = np.concatenate((-np.transpose(A), np.ones((h))[:, np.newaxis]), axis = 1)
     if checkpoints :
         print("Checking construction of A_ub : is A_ub2 shape correct ?", np.shape(A_ub2)==(h, n+1))
     A_ub = np.concatenate((A_ub1, A_ub2))
@@ -84,8 +100,13 @@ def Optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
         print("Checking construction of A_ub : is A_ub shape correct ?", np.shape(A_ub)==(2*n+h, n+1))
     b_ub = np.concatenate((np.ones((n)),np.zeros((n+h))))
     if checkpoints :
-        print("Checking construction of b_ub : is b_ub shape correct ?", np.shape(b_ub)==(2*n+h))
+        print("Checking construction of b_ub : is b_ub shape correct ?", np.shape(b_ub)==(2*n+h,))
 
+    
+    # Contraintes d'égalité (A_eq, b_eq)
+    # c @ x = P
+    # cm @ xm = kP
+    
     b_eq = np.array([P, k*P])
     A_eq1 = np.concatenate((c,np.zeros((1))))
     A_eq2 = np.concatenate((np.zeros((t)), cm))
@@ -94,23 +115,37 @@ def Optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     if checkpoints :
         print("Checking construction of A_eq : is A_eq shape correct ?", np.shape(A_eq)==(2,n+1))
     
-    coeffs = np.concatenate((np.zeros((n)), np.array([1])))
+    coeffs = np.concatenate((np.zeros((n)), np.array([-1])))
     if checkpoints :
-        print("Checking construction of coeffs : is coeffs shape correct ?", np.shape(coeffs)==(n+1))
+        print("Checking construction of coeffs : is coeffs shape correct ?", np.shape(coeffs)==(n+1,))
 
+    
     ## Calling linprog
     res = linprog(coeffs, A_ub, b_ub, A_eq, b_eq)
 
     if (res.success != True) :
         # TODO : gestion du probleme
         print("There was a trouble with the usage of linprog : the problem could not be optimized")
-        return 0
+        print(res.message)
     
     v = res.x
-    z = res.fun
+    z = -res.fun
     x = v[0:n]
     if checkpoints :
         print("Checking : is x the correct size ?", len(x)==n)
-        print("Sanity check : as z is the last variable and the objective, is z equal to v[-1] ?", z == v[-1])
+        print("Sanity check : as z is the last variable and the objective for linprog, is z equal to v[-1] ?", z == v[-1])
+        print("Sanity check : is the production c @ x equal to the argument P ?", abs(c@x-P)<1e-9)
+        print("Sanity check : is the off-shore production cm @ xm equal to k*P ?", abs(cm@x[t:n]-k*P)<1e-9)
+        boundcheck = True
+        for i in range (n) :
+            if (x[i]<0) or (x[i]>1) :
+                boundcheck = False
+        print("Sanity check : are all x's taking values between 0 and 1 ?", boundcheck)
+        mincheck = True
+        for i in range (h) :
+            if ( z - A[:,i]@x > 1e-9 ) :
+                mincheck = False
+        print("Sanity check : is z the minimum of production for all hours ?", mincheck)
+
     
     return z,x
