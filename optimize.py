@@ -70,23 +70,29 @@ def Optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     ## there are h values for x@a and we want to maximize the smaller one
 
     In = np.identity(n)
-    A_ub1 = np.concatenate(In,-In)
+    A_ub1 = np.concatenate((In,-In))
     if checkpoints :
         print("Checking construction of A_ub : for now, is A_ub1 shape correct ?", np.shape(A_ub1)==(2*n, n))
-    A_ub1 = np.concatenate((A_ub, np.zeros((2*n))[:, np.newaxis]), axis = 1)
+    A_ub1 = np.concatenate((A_ub1, np.zeros((2*n))[:, np.newaxis]), axis = 1)
     if checkpoints :
         print("Checking construction of A_ub : is A_ub1 shape correct ?", np.shape(A_ub1)==(2*n, n+1))
     A_ub2 = np.concatenate((np.transpose(A), np.ones((h))[:, np.newaxis]), axis = 1)
     if checkpoints :
         print("Checking construction of A_ub : is A_ub2 shape correct ?", np.shape(A_ub2)==(h, n+1))
-    A_ub = np.concatenate(A_ub1, A_ub2)
+    A_ub = np.concatenate((A_ub1, A_ub2))
     if checkpoints :
         print("Checking construction of A_ub : is A_ub shape correct ?", np.shape(A_ub)==(2*n+h, n+1))
     b_ub = np.concatenate((np.ones((n)),np.zeros((n+h))))
     if checkpoints :
         print("Checking construction of b_ub : is b_ub shape correct ?", np.shape(b_ub)==(2*n+h))
 
-    # TODO : construire A_eq et b_eq
+    b_eq = np.array([P, k*P])
+    A_eq1 = np.concatenate((c,np.zeros((1))))
+    A_eq2 = np.concatenate((np.zeros((t)), cm))
+    A_eq2 = np.concatenate((A_eq2, np.zeros((1))))
+    A_eq = np.array([A_eq1, A_eq2])
+    if checkpoints :
+        print("Checking construction of A_eq : is A_eq shape correct ?", np.shape(A_eq)==(2,n+1))
     
     coeffs = np.concatenate((np.zeros((n)), np.array([1])))
     if checkpoints :
