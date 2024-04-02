@@ -11,7 +11,7 @@ class ExtractData:
         self.sites_file = sites_file
         self.onshore_file = onshore_file
         self.offshore_file = offshore_file
-        self.n = n;
+        self.n = n
         self.data = self.extract_sites()
 
     def extract_sites(self):
@@ -29,36 +29,49 @@ class ExtractData:
         list_capacities = []
         for i in self.data:
             list_capacities.append(i[7])
+        return list_capacities
 
-        print(list_capacities)
+    def onshore_capacities(self):
+        list_capacities = np.array([])
+        for i in self.data:
+            if i[5] == "Non":
+                list_capacities = np.append(list_capacities, i[7])
+        return list_capacities
 
-
-    def onshore(self):
+    def offshore_capacities(self):
+        list_capacities = np.array([])
+        for i in self.data:
+            if i[5] == "Oui":
+                list_capacities = np.append(list_capacities, i[7])
+        return list_capacities
+    def onshore_rendements(self):
         ### Ouvre le fichier des données onshore et crée une liste à partir des données
         with open(self.onshore_file, 'r') as f:
             lines = f.read()
 
-        lines = lines.split(",")
+        lines = lines.split("\n")
         list_onshore = []
 
         for i in self.data:
             if i[5] == "Non":
                 index = int(i[0])
-                list_onshore.append(lines[index])
+                a = lines[index].split(",")
+                list_onshore.append(a)
 
-        return list_onshore
+        return np.array(list_onshore)
 
-    def offshore(self):
+    def offshore_rendements(self):
         ### On ouvre le fichier des données offshores et crée une liste de string à partir des données
         with open(self.offshore_file, 'r') as f:
             lines = f.read()
 
-        lines = lines.split(",")
+        lines = lines.split("\n")
         list_offshore = []
 
         for i in self.data:
             if i[5] == "Oui":
                 index = int(i[0])
-                list_offshore.append(lines[index])
+                a = lines[index].split(",")
+                list_offshore.append(a)
 
-        return list_offshore
+        return np.array(list_offshore)
