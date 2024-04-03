@@ -29,21 +29,21 @@ class ExtractData:
         list_capacities = []
         for i in self.data:
             list_capacities.append(i[7])
-        return list_capacities
+        return np.array(list_capacities).astype(np.float64)
 
     def onshore_capacities(self):
         list_capacities = np.array([])
         for i in self.data:
             if i[5] == "Non":
                 list_capacities = np.append(list_capacities, i[7])
-        return list_capacities
+        return list_capacities.astype(np.float64)
 
     def offshore_capacities(self):
         list_capacities = np.array([])
         for i in self.data:
             if i[5] == "Oui":
                 list_capacities = np.append(list_capacities, i[7])
-        return list_capacities
+        return list_capacities.astype(np.float64)
     def onshore_rendements(self):
         ### Ouvre le fichier des données onshore et crée une liste à partir des données
         with open(self.onshore_file, 'r') as f:
@@ -58,7 +58,7 @@ class ExtractData:
                 a = lines[index].split(",")
                 list_onshore.append(a)
 
-        return np.array(list_onshore)
+        return np.array(list_onshore).astype(np.float64)
 
     def offshore_rendements(self):
         ### On ouvre le fichier des données offshores et crée une liste de string à partir des données
@@ -74,4 +74,4 @@ class ExtractData:
                 a = lines[index].split(",")
                 list_offshore.append(a)
 
-        return np.array(list_offshore)
+        return np.array(list_offshore).astype(np.float64)
