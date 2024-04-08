@@ -172,9 +172,9 @@ def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
 
     for j in range (h) :
         E[j]   =  x @ A[:,j]
-        Rm[j]  =  x @ R[:,j]
+        Rm[j]  =  (x @ R[:,j])/n
         Etot  +=  E[j]
-        Rmtot +=  Rm[j]
+        Rmtot +=  Rm[j]/100
 
     sol = Solution (Rm, Rmtot, E, Etot)
     
