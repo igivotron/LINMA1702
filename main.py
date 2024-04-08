@@ -6,8 +6,8 @@ import numpy as np ## pourra etre retiré lorsque np ne sera plus employe
 
 
 def resolution(on_cap, off_cap, on_rend, off_rend):
-    z, x = optimize(on_cap, off_cap, on_rend, off_rend, P=10000, k=0.4)
-    return z, x
+    z, x, sol = optimize(on_cap, off_cap, on_rend, off_rend, P=10000, k=0.4)
+    return z, x, sol
 
 if __name__ == '__main__':
     sites_file = "Data-partie-1/Sites.csv"
@@ -21,6 +21,6 @@ if __name__ == '__main__':
     onshore_rend = data.onshore_rendements()
     offshore_rend = data.offshore_rendements()
 
-    z, x = resolution(onshore_capa, offshore_capa, onshore_rend, offshore_rend)
+    z, x, sol = resolution(onshore_capa, offshore_capa, onshore_rend, offshore_rend)
     print(x)
 
