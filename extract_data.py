@@ -85,3 +85,28 @@ class ExtractData:
                 list_offshore.append(a)
 
         return np.array(list_offshore).astype(np.float64)
+
+    def latitude(self):
+        lat = []
+        for i in self.data:
+            lat.append(i[1])
+        return lat
+
+    def longitude(self):
+        long = []
+        for i in self.data:
+            long.append(i[2])
+        return long
+
+    def country(self):
+        country = []
+        for i in self.data:
+            country.append(i[3])
+        return country
+
+    def color(self):
+        color = []
+        for i in self.data:
+            color.append(i[4])
+        return color
+

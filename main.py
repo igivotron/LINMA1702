@@ -1,6 +1,6 @@
 import extract_data as ext
 from optimize import optimize
-from time import time
+from plotMap import plotMap
 
 import numpy as np ## pourra etre retiré lorsque np ne sera plus employe
 
@@ -14,7 +14,7 @@ if __name__ == '__main__':
     onshore_file = "Data-partie-1/Rendements_onshore.csv"
     offshore_file = "Data-partie-1/Rendements_offshore.csv"
 
-    data = ext.ExtractData(sites_file, onshore_file, offshore_file, n=10)
+    data = ext.ExtractData(sites_file, onshore_file, offshore_file)
 
     onshore_capa = data.onshore_capacities()
     offshore_capa = data.offshore_capacities()
@@ -22,5 +22,7 @@ if __name__ == '__main__':
     offshore_rend = data.offshore_rendements()
 
     z, x, sol = resolution(onshore_capa, offshore_capa, onshore_rend, offshore_rend)
+    plotMap(data, x, perSize=False, size = 10)
     print(x)
+
 
