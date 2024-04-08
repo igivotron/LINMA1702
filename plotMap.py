@@ -5,6 +5,13 @@ import pandas as pd
 
 
 def plotMap(data, x, size = 100, perSize = True):
+    """
+    Plots the map
+    :param data:data
+    :param x:x
+    :param size: points default size
+    :param perSize: Change the size of the points
+    """
 
     df = pd.DataFrame({
             "Country": data.country(),
