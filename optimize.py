@@ -27,6 +27,7 @@ def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     - Rm, numpy array de dimensions m x h, 
     la matrice de rendement (pour chaque heure d'une année) des sites d'éoliennes se trouvant en mer (off-shore)
     remarque : ct, cm, Rt, Rm sont supposées extraites des documents Rendements_offshore.csv, Rendements_onshore.csv, Sites.csv, de la partie Data du projet
+    ils sont donc supposés non vides
     - P, scalaire, la puissance totale installable,
     - k, scalaire compris entre 0 et 1, la proportion de la puissance totale devant obligatoirement être attribuée à des sites d'éoliennes se trouvant dans la mer (off-shore)
 
@@ -43,9 +44,9 @@ def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     ## Getting all the sizes
     t = np.size(ct)
     m = np.size(cm)
-    h = np.shape(Rt)[1] if np.size(Rt) != 0 else 0
+    h = np.shape(Rt)
     if checkpoints :
-        print("Checking sizes, i want all True :", t==np.shape(Rt)[0], m==np.shape(Rm)[0])
+        print("Checking sizes, i want all True :", t==np.shape(Rt)[0], m==np.shape(Rm)[0], h==np.shape(Rm)[1])
     n = t + m
 
     if n==0 :
@@ -57,12 +58,7 @@ def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     # c is the concatenation of ct and cm
     c = np.concatenate((ct, cm))
     # R is the concatenation of Rt and Rm along the "eolien sites" axis
-    if np.size(Rt) != 0 and np.size(Rm) != 0 :
-        R = np.concatenate((Rt, Rm))
-    elif np.size(Rt) == 0 :
-        R = Rm
-    elif np.size(Rm) == 0 :
-        R = Rt
+    R = np.concatenate((Rt, Rm))
     if checkpoints :
         print("Checking dimensions : is c ok ? is R ok ?", np.shape(c)==(n,), np.shape(R)==(n,h))
     # A is the line-product of c and R, so that in A, 
