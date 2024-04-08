@@ -23,8 +23,12 @@ def resolution_speed(sites_file, onshore_file, offshore_file, timey, episode):
         data = ExtractData(sites_file, onshore_file, offshore_file, n=i*m)
         time_list = np.zeros(timey)
         for j in range(timey):
+            onshore_capa = data.onshore_capacities()
+            offshore_capa = data.offshore_capacities()
+            onshore_rend = data.onshore_rendements()
+            offshore_rend = data.offshore_rendements()
             start_time = time()
-            resolution(data)
+            resolution(onshore_capa, offshore_capa, onshore_rend, offshore_rend)
             end_time = time()
             time_list[j] = end_time - start_time
         registre_temporel[i] = np.average(time_list)
