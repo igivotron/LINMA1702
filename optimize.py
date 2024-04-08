@@ -1,6 +1,26 @@
 import numpy as np
 from scipy.optimize import linprog
 
+class Solution :
+    """
+    Classe creuse créée pour la question 1B.
+    Initialisée dans optimize.py.
+
+    (on considère les n sites d'éoliennes dans l'ordre de Sites.csv,
+    et les h périodes d'une heure (taille d'une ligne de Rendements_(off)/(on)shore.csv))
+
+    Paramètres :
+    - Rm, numpy array de taille h, le rendement moyen par heure
+    - Rmtot, scalaire, le rendement moyen sur un an
+    - E, numpy array de taille h, production d'énergie au cours du temps
+    - Etot, scalaire, énergie totale produite au cours d'une année
+    """
+    
+    def __init__(self, Rm, Rmtot, E, Etot) :
+        self.Rm = Rm
+        self.Rmtot = Rmtot
+        self.E = E
+        self.Etot = Etot
 
 def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     """
@@ -27,6 +47,7 @@ def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     - Rm, numpy array de dimensions m x h, 
     la matrice de rendement (pour chaque heure d'une année) des sites d'éoliennes se trouvant en mer (off-shore)
     remarque : ct, cm, Rt, Rm sont supposées extraites des documents Rendements_offshore.csv, Rendements_onshore.csv, Sites.csv, de la partie Data du projet
+    ils sont donc supposés non vides
     - P, scalaire, la puissance totale installable,
     - k, scalaire compris entre 0 et 1, la proportion de la puissance totale devant obligatoirement être attribuée à des sites d'éoliennes se trouvant dans la mer (off-shore)
 
@@ -43,9 +64,9 @@ def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     ## Getting all the sizes
     t = np.size(ct)
     m = np.size(cm)
-    h = np.shape(Rt)[1] if np.size(Rt) != 0 else 0
+    h = np.shape(Rt)[1]
     if checkpoints :
-        print("Checking sizes, i want all True :", t==np.shape(Rt)[0], m==np.shape(Rm)[0])
+        print("Checking sizes, i want all True :", t==np.shape(Rt)[0], m==np.shape(Rm)[0], h==np.shape(Rm)[1])
     n = t + m
 
     if n==0 :
@@ -57,12 +78,7 @@ def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     # c is the concatenation of ct and cm
     c = np.concatenate((ct, cm))
     # R is the concatenation of Rt and Rm along the "eolien sites" axis
-    if np.size(Rt) != 0 and np.size(Rm) != 0 :
-        R = np.concatenate((Rt, Rm))
-    elif np.size(Rt) == 0 :
-        R = Rm
-    elif np.size(Rm) == 0 :
-        R = Rt
+    R = np.concatenate((Rt, Rm))
     if checkpoints :
         print("Checking dimensions : is c ok ? is R ok ?", np.shape(c)==(n,), np.shape(R)==(n,h))
     # A is the line-product of c and R, so that in A, 
@@ -146,6 +162,20 @@ def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
             if ( z - A[:,i]@x > 1e-9 ) :
                 mincheck = False
         print("Sanity check : is z the minimum of production for all hours ?", mincheck)
-
     
-    return z,x
+    ## Computing interesting values
+    ## See the Solution class
+    E     = np.zeros((h))
+    Rm    = np.zeros((h))
+    Etot  = 0
+    Rmtot = 0
+
+    for j in range (h) :
+        E[j]   =  x @ A[:,j]
+        Rm[j]  =  x @ R[:,j]
+        Etot  +=  E[j]
+        Rmtot +=  Rm[j]
+
+    sol = Solution (Rm, Rmtot, E, Etot)
+    
+    return z,x,sol
