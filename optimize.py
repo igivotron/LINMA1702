@@ -1,6 +1,26 @@
 import numpy as np
 from scipy.optimize import linprog
 
+class Solution :
+    """
+    Classe creuse créée pour la question 1B.
+    Initialisée dans optimize.py.
+
+    (on considère les n sites d'éoliennes dans l'ordre de Sites.csv,
+    et les h périodes d'une heure (taille d'une ligne de Rendements_(off)/(on)shore.csv))
+
+    Paramètres :
+    - Rm, numpy array de taille h, le rendement moyen par heure
+    - Rmtot, scalaire, le rendement moyen sur un an
+    - E, numpy array de taille h, production d'énergie au cours du temps
+    - Etot, scalaire, énergie totale produite au cours d'une année
+    """
+    
+    def __init__(self, Rm, Rmtot, E, Etot) :
+        self.Rm = Rm
+        self.Rmtot = Rmtot
+        self.E = E
+        self.Etot = Etot
 
 def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     """
@@ -44,7 +64,7 @@ def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     ## Getting all the sizes
     t = np.size(ct)
     m = np.size(cm)
-    h = np.shape(Rt)
+    h = np.shape(Rt)[1]
     if checkpoints :
         print("Checking sizes, i want all True :", t==np.shape(Rt)[0], m==np.shape(Rm)[0], h==np.shape(Rm)[1])
     n = t + m
@@ -142,6 +162,20 @@ def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
             if ( z - A[:,i]@x > 1e-9 ) :
                 mincheck = False
         print("Sanity check : is z the minimum of production for all hours ?", mincheck)
-
     
-    return z,x
+    ## Computing interesting values
+    ## See the Solution class
+    E     = np.zeros((h))
+    Rm    = np.zeros((h))
+    Etot  = 0
+    Rmtot = 0
+
+    for j in range (h) :
+        E[j]   =  x @ A[:,j]
+        Rm[j]  =  x @ R[:,j]
+        Etot  +=  E[j]
+        Rmtot +=  Rm[j]
+
+    sol = Solution (Rm, Rmtot, E, Etot)
+    
+    return z,x,sol
