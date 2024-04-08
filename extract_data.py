@@ -12,6 +12,10 @@ class ExtractData:
         self.onshore_file = onshore_file
         self.offshore_file = offshore_file
         self.n = n
+        self.n_onshore = int(0.75 * n)
+        self.n_offshore = n - self.n_onshore
+        if self.n_offshore > 155:
+            self.n_offshore = 154
         self.data = self.extract_sites()
 
     def extract_sites(self):
@@ -20,10 +24,16 @@ class ExtractData:
             lines = f.read()
 
         ### On coupe le contenu du fichier en ligne puis en colonne
-        lines = lines.split("\n")[1:self.n + 1]
-        for i in range(len(lines)):
-            lines[i] = lines[i].split(",")
-        return lines
+        if self.n != 642:
+            lines1 = lines.split("\n")[1:1+self.n_onshore]
+            lines2 = lines.split("\n")[489:489+self.n_offshore]
+            lines3 = lines1 + lines2
+        else:
+            lines3 = lines.split("\n")[1:-1]
+
+        for i in range(len(lines3)):
+            lines3[i] = lines3[i].split(",")
+        return lines3
 
     def capacities(self):
         list_capacities = []
