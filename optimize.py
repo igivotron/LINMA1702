@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.optimize import linprog
+from modeles import modele1
 
 class Solution :
     """
@@ -20,22 +20,22 @@ class Solution :
         self.Rm = Rm
         self.Rmtot = Rmtot
         self.E = E
-        self.Etot = Etot
+        self.Etot = Etot  
 
-def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
+
+def optimize (ct, cm, Rt, Rm, P, k, modele = 1, S=0, checkpoints = False) :
     """
-    Optimize est une fonction qui optimise la production d'energie d'un nombre n de sites d'éoliennes 
-    (situés sur terre, on-shore, ou en mer, off-shore), 
-    ces sites sont numérotés de 0 à n-1 
-    (indices correspondant à l'ordre des éléments dans Sites.csv !!!pas à la colonne index!!!),
+    Fonction générique pour la résolution du problème d'optimisation linéaire, en variables continues,
+    de la localisation des productions éoliennes en Europe,
+    selon 2 modèles.
+
+    Optimize  optimise la production d'energie d'un nombre n de sites d'éoliennes 
+    (situés sur terre, onshore, ou en mer, offshore), 
+    ces sites sont numérotés de 0 à n-1 (indices correspondant à l'ordre des éléments dans Sites.csv !!!pas à la colonne index!!!),
     et la production est optimisée selon la variabilité estimée des rendements des sites, 
     la puissance totale installable P, 
-    et la proportion k de la puissance totale devant obligatoirement être attribuée à des sites d'éoliennes se trouvant dans la mer (off-shore).
-    
-    Optimize renvoie x, les proportions de chaque site d'éoliennes qui seront installées,
-    et z, la fonction objectif telle que définie plus bas.
-
-    TODO : définir z de manière compréhensible. 
+    la proportion k de la puissance totale devant obligatoirement être attribuée à des sites d'éoliennes se trouvant dans la mer (offshore),
+    ainsi que la quantité S maximale d'énergie achetée à l'année (uniquement pour le second modèle).
 
     Args :
     - ct, numpy array de dimension t, 
@@ -51,14 +51,25 @@ def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     - P, scalaire, la puissance totale installable,
     - k, scalaire compris entre 0 et 1, la proportion de la puissance totale devant obligatoirement être attribuée à des sites d'éoliennes se trouvant dans la mer (off-shore)
 
+    - modele, entier valant 1 ou 2 (par défaut : 1), décrivant le modèle résolu par optimize 
+    (correspondant aux questions 1 et 2 de l'énoncé du projet)
+    - S, scalaire (optionnel : par défaut 0), limite sur la quantité d'énergie achetée à l'année (utilisé seulement si modele = 2)
+
     - checkpoints, optionnel, un booléen (par défaut False)
     if checkpoints == True, la fonction Optimize imprime un ensemble d'indications dans le terminal pour aider au débuggage
     (un peu mochement fait mais utile normalement)
 
     Returns :
-    - x, un vecteur de taille n dont les valeurs sont comprises entre 0 et 1,
-    proportion des sites d'éoliennes devant être installées,
+    - res, un tuple comprenant les variables d'intérêt obtenues par la résolution du problème linéaire
+    res contient 1 ou 2 arrays en fonction du modele considere :
+    pour le modele 1, res = (x)
+    pour le modele 2, res = (x,s)
+    -- x, vecteur de taille n dont les valeurs sont comprises entre 0 et 1,
+    proportion des sites éoliens devant être installés,
+    -- s, vecteur de taille h dont les valeurs sont supérieures ou égales à 0,
+    quantités d'énergie supplémentaires (de source non éolienne) achetées par heure
     - z, l'objectif
+    - sol, un objet de type Solution, contenant des valeurs intéressantes pour l'analyse des résultats
     """
 
     ## Getting all the sizes
@@ -86,82 +97,21 @@ def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
     A = c[:, np.newaxis] * R
 
 
-    ## Constructing all the matrices of use for linprog
-    ## v are the variables linprog will give us in return, v = (x|z)
-    ## z is the optimized objective linprog will give us in return
-    ## A_ub @ v <= b_ub
-    ## A_eq @ v == b_eq
-
-    ## max (min (x@aj)) = max z ; z <= x@aj
-    ## where aj is a column of A, of size n
-    ## there are h values for x@aj and we want to maximize the smaller one (z)
-
+    ## Resolution
+    if (modele == 1) :
+        x,z = modele1(t,m,n,h,ct,cm,c,Rt,Rm,R,A,P,k,checkpoints)
+        res = (x)
     
-    # Contraintes d'inégalité (A_ub, b_ub) :
-    # 0 <= x <= 1 pour tout x
-    # z <= (aj)Tx pour tout aj colonne de A
+    elif (modele == 2) :
+        x,s,z = modele2(t,m,n,h,ct,cm,Rt,Rm,R,A,P,k,S,checkpoints)
+        res = (x,s)
+    
+    elif (modele == 3) :
+        ##TODO : completer
+        print("Argument modele invalide")
 
-    In = np.identity(n)
-    A_ub1 = np.concatenate((In,-In))
-    if checkpoints :
-        print("Checking construction of A_ub : for now, is A_ub1 shape correct ?", np.shape(A_ub1)==(2*n, n))
-    A_ub1 = np.concatenate((A_ub1, np.zeros((2*n))[:, np.newaxis]), axis = 1)
-    if checkpoints :
-        print("Checking construction of A_ub : is A_ub1 shape correct ?", np.shape(A_ub1)==(2*n, n+1))
-    A_ub2 = np.concatenate((-np.transpose(A), np.ones((h))[:, np.newaxis]), axis = 1)
-    if checkpoints :
-        print("Checking construction of A_ub : is A_ub2 shape correct ?", np.shape(A_ub2)==(h, n+1))
-    A_ub = np.concatenate((A_ub1, A_ub2))
-    if checkpoints :
-        print("Checking construction of A_ub : is A_ub shape correct ?", np.shape(A_ub)==(2*n+h, n+1))
-    b_ub = np.concatenate((np.ones((n)),np.zeros((n+h))))
-    if checkpoints :
-        print("Checking construction of b_ub : is b_ub shape correct ?", np.shape(b_ub)==(2*n+h,))
-
-    
-    # Contraintes d'égalité (A_eq, b_eq)
-    # c @ x = P
-    # cm @ xm = kP
-    
-    b_eq = np.array([P, k*P])
-    A_eq1 = np.concatenate((c,np.zeros((1))))
-    A_eq2 = np.concatenate((np.zeros((t)), cm))
-    A_eq2 = np.concatenate((A_eq2, np.zeros((1))))
-    A_eq = np.array([A_eq1, A_eq2])
-    if checkpoints :
-        print("Checking construction of A_eq : is A_eq shape correct ?", np.shape(A_eq)==(2,n+1))
-    
-    coeffs = np.concatenate((np.zeros((n)), np.array([-1])))
-    if checkpoints :
-        print("Checking construction of coeffs : is coeffs shape correct ?", np.shape(coeffs)==(n+1,))
-
-    
-    ## Calling linprog
-    res = linprog(coeffs, A_ub, b_ub, A_eq, b_eq)
-
-    if (res.success != True) :
-        # TODO : gestion du probleme
-        print("There was a trouble with the usage of linprog : the problem could not be optimized")
-        print(res.message)
-    
-    v = res.x
-    z = -res.fun
-    x = v[0:n]
-    if checkpoints :
-        print("Checking : is x the correct size ?", len(x)==n)
-        print("Sanity check : as z is the last variable and the objective for linprog, is z equal to v[-1] ?", z == v[-1])
-        print("Sanity check : is the production c @ x equal to the argument P ?", abs(c@x-P)<1e-9)
-        print("Sanity check : is the off-shore production cm @ xm equal to k*P ?", abs(cm@x[t:n]-k*P)<1e-9)
-        boundcheck = True
-        for i in range (n) :
-            if (x[i]<0) or (x[i]>1) :
-                boundcheck = False
-        print("Sanity check : are all x's taking values between 0 and 1 ?", boundcheck)
-        mincheck = True
-        for i in range (h) :
-            if ( z - A[:,i]@x > 1e-9 ) :
-                mincheck = False
-        print("Sanity check : is z the minimum of production for all hours ?", mincheck)
+    else :
+        print("Argument modele invalide")
     
     ## Computing interesting values
     ## See the Solution class
@@ -172,10 +122,11 @@ def optimize (ct, cm, Rt, Rm, P, k, checkpoints = False) :
 
     for j in range (h) :
         E[j]   =  x @ A[:,j]
-        Rm[j]  =  (x @ R[:,j])/n
-        Etot  +=  E[j]
-        Rmtot +=  Rm[j]/100
+        Rm[j] = x @ R[:, j] / np.sum(x)
+
+    Etot = np.sum(E)
+    Rmtot = np.sum(Rm)/h
 
     sol = Solution (Rm, Rmtot, E, Etot)
     
-    return z,x,sol
+    return res,z,sol

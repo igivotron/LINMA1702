@@ -1,7 +1,7 @@
 import extract_data as ext
 from optimize import optimize
 from plotMap import plotMap
-from graphs import graph
+from graphs import graph_rendements, graph_energy
 
 import numpy as np ## pourra etre retiré lorsque np ne sera plus employe
 
@@ -18,12 +18,14 @@ if __name__ == '__main__':
     onshore_rend = data.onshore_rendements()
     offshore_rend = data.offshore_rendements()
 
+    ### Modele 1
+
     P, k = 10000, 0.4
 
     print("Valeurs utilisées : P = {} ; k = {}".format(P,k))
     
     print("Resolution du probleme lineaire...")
-    z, x, sol = optimize(onshore_capa, offshore_capa, onshore_rend, offshore_rend, P, k)
+    (x), z, sol = optimize(onshore_capa, offshore_capa, onshore_rend, offshore_rend, P, k, modele=1)
 
     print("Affichage des sites concernés sur une carte de l'Europe...")
     plotMap(data, x)
@@ -36,11 +38,11 @@ if __name__ == '__main__':
     print("Minimum de l'énergie produite en une heure, ou fonction objectif : {} MWh".format(z))
 
     print("Affichage des graphes du rendement moyen et de l'énergie produite en fonction du temps...")
-    graph(sol.Rm, sol.E, 
-          nticks = 10000,
-          scale = 'mois',
-          E_name = "graphe-eng",
-          Rm_name = "graphe-rendement")
+    nticks = 500
+    scale = 'jours'
+    graph_rendements(sol.Rm, nticks = nticks, scale = scale, Rm_name = "graphe-rendement")
+    graph_energy(sol.E, nticks = nticks, scale = scale, E_name = "graphe-eng")
+
 
     print("Rendement moyen sur l'année : {} %".format(sol.Rmtot*100))
     print("Energie produite en un an : {} MWh".format(sol.Etot))
