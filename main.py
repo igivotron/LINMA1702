@@ -18,20 +18,30 @@ if __name__ == '__main__':
     onshore_rend = data.onshore_rendements()
     offshore_rend = data.offshore_rendements()
 
-    z, x, sol = optimize(onshore_capa, offshore_capa, onshore_rend, offshore_rend)
-    plotMap(data, x)
-    print(x)
-    print(np.nonzero(x))
-    print("Question 1B : resolution du probleme lineaire")
     P, k = 10000, 0.4
+
     print("Valeurs utilisées : P = {} ; k = {}".format(P,k))
+    
     print("Resolution du probleme lineaire...")
     z, x, sol = optimize(onshore_capa, offshore_capa, onshore_rend, offshore_rend, P, k)
+
     print("Affichage des sites concernés sur une carte de l'Europe...")
-    plotMap(data, x, perSize=False, size = 10)
-    print("Affichage des graphes du rendement moyen et de l'énergie produite en fonction du temps...")
-    graph(sol.Rm,sol.E,nticks = 200)
+    plotMap(data, x)
+
+    ##
+    print("Vecteur de solutions x : {}".format(x))
+    print(np.nonzero(x))
+    ## A retirer d'apres moi (peut-on faire les checks de maniere interne et ne pas encombrer le main ? :))
+
     print("Minimum de l'énergie produite en une heure, ou fonction objectif : {} MWh".format(z))
+
+    print("Affichage des graphes du rendement moyen et de l'énergie produite en fonction du temps...")
+    graph(sol.Rm, sol.E, 
+          nticks = 10000,
+          scale = 'mois',
+          E_name = "graphe-eng",
+          Rm_name = "graphe-rendement")
+
     print("Rendement moyen sur l'année : {} %".format(sol.Rmtot*100))
     print("Energie produite en un an : {} MWh".format(sol.Etot))
 

@@ -16,6 +16,8 @@ def resolution_speed(sites_file, onshore_file, offshore_file, timey, episode):
     :param timey: how many times to execute the subsimulation
     :param episode: number of pool to test
     """
+    P,k = 10000, 0.4
+
     m = int(642/episode)
     registre_temporel = np.zeros(episode+1)
     registre_n = np.zeros(episode+1)
@@ -28,7 +30,7 @@ def resolution_speed(sites_file, onshore_file, offshore_file, timey, episode):
             onshore_rend = data.onshore_rendements()
             offshore_rend = data.offshore_rendements()
             start_time = time()
-            optimize(onshore_capa, offshore_capa, onshore_rend, offshore_rend)
+            optimize(onshore_capa, offshore_capa, onshore_rend, offshore_rend, P, k)
             end_time = time()
             time_list[j] = end_time - start_time
         registre_temporel[i] = np.average(time_list)
