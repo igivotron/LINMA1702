@@ -5,10 +5,6 @@ from plotMap import plotMap
 import numpy as np ## pourra etre retiré lorsque np ne sera plus employe
 
 
-def resolution(on_cap, off_cap, on_rend, off_rend):
-    z, x, sol = optimize(on_cap, off_cap, on_rend, off_rend, P=10000, k=0.4)
-    return z, x, sol
-
 if __name__ == '__main__':
     sites_file = "Data-partie-1/Sites.csv"
     onshore_file = "Data-partie-1/Rendements_onshore.csv"
@@ -21,8 +17,9 @@ if __name__ == '__main__':
     onshore_rend = data.onshore_rendements()
     offshore_rend = data.offshore_rendements()
 
-    z, x, sol = resolution(onshore_capa, offshore_capa, onshore_rend, offshore_rend)
-    plotMap(data, x, perSize=False, size = 10)
+    z, x, sol = optimize(onshore_capa, offshore_capa, onshore_rend, offshore_rend)
+    plotMap(data, x)
     print(x)
+    print(np.nonzero(x))
 
 

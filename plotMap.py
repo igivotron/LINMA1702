@@ -25,10 +25,11 @@ def plotMap(data, x, size = 100, perSize = True):
 
     world = gpd.read_file(gpd.datasets.get_path("naturalearth_lowres"))
 
-    ax = world.clip([-12, 35, 35, 75]).plot(color="white", edgecolor="black")
+    ax = world.clip([-12, 35, 35, 75]).plot(color="ivory", edgecolor="black")
     ax.set_axis_off()
     if not perSize:
         x = np.where(x==0, 0, 1)
     gdf.plot(ax=ax, color=data.color(), markersize=x*size)
 
+    plt.savefig("bigIronFan.png")
     plt.show()
