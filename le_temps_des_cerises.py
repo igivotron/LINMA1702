@@ -28,14 +28,16 @@ def resolution_speed(sites_file, onshore_file, offshore_file, timey, episode):
             onshore_rend = data.onshore_rendements()
             offshore_rend = data.offshore_rendements()
             start_time = time()
-            optimize(onshore_capa, offshore_capa, onshore_rend, offshore_rend)
+            optimize(onshore_capa, offshore_capa, onshore_rend, offshore_rend, 10000, 0.4)
             end_time = time()
             time_list[j] = end_time - start_time
         registre_temporel[i] = np.average(time_list)
-        registre_n[i] = i*m
+        registre_n[i] = i * m
+        print("episode : ", i)
     return registre_n, registre_temporel
 
-n, speed = resolution_speed(sites_file, onshore_file, offshore_file, 10, 50)
+
+n, speed = resolution_speed(sites_file, onshore_file, offshore_file, 100, 50)
 print(len(n))
 plt.plot(n, speed)
 plt.grid(which='both')
