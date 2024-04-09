@@ -20,7 +20,6 @@ gdf = gpd.GeoDataFrame(all_sites, geometry=gpd.points_from_xy([site['longitude']
 world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
 
 x_min, y_min, x_max, y_max = (-10, 35, 30, 70)
-
 europe_zoomed = world.cx[x_min:x_max, y_min:y_max]
 
 fig, ax = plt.subplots(figsize=(20, 16))
