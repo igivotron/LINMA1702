@@ -1,7 +1,7 @@
 import geopandas as gpd
 import matplotlib.pyplot as plt
 
-sites = open("Sites.csv", "r")
+sites = open("Data-partie-1/Sites.csv", "r")
 all_sites = []
 
 for line in sites.readlines():
