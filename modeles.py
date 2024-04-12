@@ -118,7 +118,12 @@ def mod3ContSup(R, c, T):
     F = np.dot(D, E)
     # G : matrice Ak - Ak+1
     G = np.dot(D, -E)
-    return F.T, G.T
+    # U: matrice addition toutes les heures
+    U = np.ones((P.shape[1], 1))
+    # V : matrice production éolienne totale
+    V = np.dot(P, U)
+
+    return V[:,0], F.T, G.T
 
 def modele3(t, m, n, h, ct, cm, c, Rt, Rm, R, A, P, k, delta, T, checkpoints):
     """
@@ -148,19 +153,19 @@ def modele3(t, m, n, h, ct, cm, c, Rt, Rm, R, A, P, k, delta, T, checkpoints):
 
     In = np.identity(n)
     A_ub1 = np.concatenate((In, -In))
-    F, G = mod3ContSup(R, c, T)
+    V, F, G = mod3ContSup(R, c, T)
     m = F.shape[0] #p-1
 
-    A_ub1 = np.concatenate((A_ub1, np.zeros((A_ub1.shape[0], m)), np.zeros((2 * n))[:, np.newaxis]), axis=1)
-    A_ub2 = np.concatenate((-np.transpose(A), np.zeros((A.shape[1], m)),np.ones((h))[:, np.newaxis]), axis=1)
-    A_ub3 = np.concatenate((F,-np.identity(F.shape[0]),np.zeros((m,1))), axis=1)
-    A_ub4 = np.concatenate((G,-np.identity(G.shape[0]),np.zeros((G.shape[0],1))), axis=1)
-    A_ub5 = np.concatenate((np.zeros((1,n)), np.ones((1,m)), np.zeros((1,1))), axis=1)
-    A_ub = np.concatenate((A_ub1, A_ub2, A_ub3, A_ub4, A_ub5))
-    print(A_ub.shape)
+
+
+    A_ub1 = np.concatenate((A_ub1, np.zeros((A_ub1.shape[0], m))), axis=1)
+    A_ub2 = np.concatenate((F,-np.identity(F.shape[0])), axis=1)
+    A_ub3 = np.concatenate((G,-np.identity(G.shape[0])), axis=1)
+    A_ub4 = np.concatenate((np.zeros((1,n)), np.ones((1,m))), axis=1)
+    A_ub = np.concatenate((A_ub1, A_ub2, A_ub3, A_ub4))
 
     b_ub1 = np.ones((n))
-    b_ub2 = np.zeros((n+h))
+    b_ub2 = np.zeros((n))
     b_ub3 = np.zeros((2*m))
     b_ub4 = np.array([delta*T*P*m])
     b_ub = np.concatenate((b_ub1, b_ub2, b_ub3, b_ub4))
@@ -170,11 +175,11 @@ def modele3(t, m, n, h, ct, cm, c, Rt, Rm, R, A, P, k, delta, T, checkpoints):
     # cm @ xm = kP
 
     b_eq = np.array([P, k * P])
-    A_eq1 = np.concatenate((c, np.zeros((m)), np.zeros((1))))
-    A_eq2 = np.concatenate((np.zeros((t)), cm, np.zeros((m)),np.zeros((1))))
+    A_eq1 = np.concatenate((c, np.zeros((m))))
+    A_eq2 = np.concatenate((np.zeros((t)), cm, np.zeros((m))))
     A_eq = np.array([A_eq1, A_eq2])
 
-    coeffs = np.concatenate((np.zeros((n)), np.zeros((m)), np.array([-1])))
+    coeffs = -np.concatenate((V, np.zeros((m))))
 
 
     ## Calling linprog

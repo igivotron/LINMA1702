@@ -26,23 +26,26 @@ def mod3ContSup(R, c, T):
     F = np.dot(D, E)
     # G : matrice Ak - Ak+1
     G = np.dot(D, -E)
+    # U: matrice addition toutes les heures
+    U = np.ones((P.shape[1], 1))
+    # V : matrice production éolienne totale
+    V = np.dot(P, U)
 
-    # print("Matrice effective")
-    # print(A)
-    # print("Production par période P")
-    # print(P)
+    print("Matrice effective")
+    print(A)
+    print("Production par période P")
+    print(P)
     # print("Différences de production entre périodes successives")
     # print(D)
     # print("Ak+1 - Ak")
     # print(F.T)
     # print("Ak - Ak+1")
     # print(G.T)
-    return F.T, G.T
+    return V, F.T, G.T
 
 R = np.array([[1, 2, 3, 5, 4, 2], [4, 5, 6, 7, 4, 3], [7, 8, 9, 9, 8, 5], [4, 5, 8, 8, 5, 4]])
 c = np.array([10, 8, 12, 12])
 x = np.array([1, 1, 1, 1])
 
-F, G= mod3ContSup(R, c, 1)
-
+V, F, G= mod3ContSup(R, c, 1)
 
