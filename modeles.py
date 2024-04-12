@@ -96,6 +96,12 @@ def mod3ContSup(R, c, T):
     A = np.zeros(R.shape)
     for i in range(len(c)):
         A[i] = c[i] * R[i]
+
+    # U: matrice addition toutes les heures
+    U = np.ones((A.shape[1], 1))
+    # V : matrice production éolienne totale
+    V = np.dot(A, U)
+
     # p : nombre de période et reste
     p = A.shape[1] // T
     r = A.shape[1] % T
@@ -116,10 +122,6 @@ def mod3ContSup(R, c, T):
     F = np.dot(P, E)
     # G : matrice Ak - Ak+1
     G = np.dot(P, -E)
-    # U: matrice addition toutes les heures
-    U = np.ones((P.shape[1], 1))
-    # V : matrice production éolienne totale
-    V = np.dot(P, U)
 
     return V[:,0], F.T, G.T
 
