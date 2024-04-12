@@ -1,5 +1,5 @@
 import numpy as np
-from modeles import modele1
+from modeles import modele1, modele2
 
 class Solution :
     """
@@ -36,6 +36,8 @@ def optimize (ct, cm, Rt, Rm, P, k, modele = 1, S=0, checkpoints = False) :
     la puissance totale installable P, 
     la proportion k de la puissance totale devant obligatoirement être attribuée à des sites d'éoliennes se trouvant dans la mer (offshore),
     ainsi que la quantité S maximale d'énergie achetée à l'année (uniquement pour le second modèle).
+
+    Optimize utilise deux fonctions, modele1 et modele2, décrites dans modeles.py.
 
     Args :
     - ct, numpy array de dimension t, 
@@ -103,7 +105,7 @@ def optimize (ct, cm, Rt, Rm, P, k, modele = 1, S=0, checkpoints = False) :
         res = (x)
     
     elif (modele == 2) :
-        x,s,z = modele2(t,m,n,h,ct,cm,Rt,Rm,R,A,P,k,S,checkpoints)
+        x,s,z = modele2(t,m,n,h,ct,cm,c,Rt,Rm,R,A,P,k,S,checkpoints)
         res = (x,s)
     
     elif (modele == 3) :
@@ -122,7 +124,10 @@ def optimize (ct, cm, Rt, Rm, P, k, modele = 1, S=0, checkpoints = False) :
 
     for j in range (h) :
         E[j]   =  x @ A[:,j]
-        Rm[j] = x @ R[:, j] / np.sum(x)
+        Rm[j] = x @ R[:, j]
+
+    if (np.sum(x) != 0) :
+        Rm = Rm/np.sum(x)
 
     Etot = np.sum(E)
     Rmtot = np.sum(Rm)/h
