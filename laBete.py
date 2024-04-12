@@ -18,14 +18,12 @@ def mod3ContSup(R, c, T):
     P = np.dot(A, C)
     # B : matrice pour calculer les différences de productions entre période successive
     B = np.eye(p, p - 1, k=-1) - np.eye(p, p - 1)
-    # D : matrice des deltaP
-    D = np.dot(P, B)
     # E : matrice pour faire la différence entre colonnes successives
-    E = np.eye(D.shape[1], D.shape[0]+1, k=-1) - np.eye(D.shape[1], D.shape[0]+1)
+    E = np.eye(P.shape[1], P.shape[1]-1, k=-1) - np.eye(P.shape[1], P.shape[1]-1)
     # F : matrice Ak+1 - Ak
-    F = np.dot(D, E)
+    F = np.dot(P, E)
     # G : matrice Ak - Ak+1
-    G = np.dot(D, -E)
+    G = np.dot(P, -E)
     # U: matrice addition toutes les heures
     U = np.ones((P.shape[1], 1))
     # V : matrice production éolienne totale
@@ -35,12 +33,12 @@ def mod3ContSup(R, c, T):
     print(A)
     print("Production par période P")
     print(P)
-    # print("Différences de production entre périodes successives")
-    # print(D)
-    # print("Ak+1 - Ak")
-    # print(F.T)
-    # print("Ak - Ak+1")
-    # print(G.T)
+    print("Ak+1 - Ak")
+    print(F)
+    print("Ak - Ak+1")
+    print(G)
+    print("matrice addition toutes les heures")
+    print(V)
     return V, F.T, G.T
 
 R = np.array([[1, 2, 3, 5, 4, 2], [4, 5, 6, 7, 4, 3], [7, 8, 9, 9, 8, 5], [4, 5, 8, 8, 5, 4]])
@@ -48,4 +46,7 @@ c = np.array([10, 8, 12, 12])
 x = np.array([1, 1, 1, 1])
 
 V, F, G= mod3ContSup(R, c, 1)
+
+
+X = np.dot(F, x)
 
