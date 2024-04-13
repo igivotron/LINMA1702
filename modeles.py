@@ -96,6 +96,12 @@ def mod3ContSup(R, c, T):
     A = np.zeros(R.shape)
     for i in range(len(c)):
         A[i] = c[i] * R[i]
+
+    # U: matrice addition toutes les heures
+    U = np.ones((A.shape[1], 1))
+    # V : matrice production éolienne totale
+    V = np.dot(A, U)
+
     # p : nombre de période et reste
     p = A.shape[1] // T
     r = A.shape[1] % T
@@ -110,18 +116,12 @@ def mod3ContSup(R, c, T):
     P = np.dot(A, C)
     # B : matrice pour calculer les différences de productions entre période successive
     B = np.eye(p, p - 1, k=-1) - np.eye(p, p - 1)
-    # D : matrice des deltaP
-    D = np.dot(P, B)
     # E : matrice pour faire la différence entre colonnes successives
-    E = np.eye(D.shape[1], D.shape[0]+1, k=-1) - np.eye(D.shape[1], D.shape[0]+1)
+    E = np.eye(P.shape[1], P.shape[1]-1, k=-1) - np.eye(P.shape[1], P.shape[1]-1)
     # F : matrice Ak+1 - Ak
-    F = np.dot(D, E)
+    F = np.dot(P, E)
     # G : matrice Ak - Ak+1
-    G = np.dot(D, -E)
-    # U: matrice addition toutes les heures
-    U = np.ones((P.shape[1], 1))
-    # V : matrice production éolienne totale
-    V = np.dot(P, U)
+    G = np.dot(P, -E)
 
     return V[:,0], F.T, G.T
 
