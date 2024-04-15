@@ -1,5 +1,5 @@
 import numpy as np
-from modeles import modele1, modele2
+from modeles import modele1, modele2, modele3
 
 class Solution :
     """
@@ -23,7 +23,7 @@ class Solution :
         self.Etot = Etot  
 
 
-def optimize (ct, cm, Rt, Rm, P, k, modele = 1, S=0, checkpoints = False) :
+def optimize (ct, cm, Rt, Rm, P, k, modele = 1, S=0, delta=0, T=0, checkpoints = False) :
     """
     Fonction générique pour la résolution du problème d'optimisation linéaire, en variables continues,
     de la localisation des productions éoliennes en Europe,
@@ -109,8 +109,8 @@ def optimize (ct, cm, Rt, Rm, P, k, modele = 1, S=0, checkpoints = False) :
         res = (x,s)
     
     elif (modele == 3) :
-        ##TODO : completer
-        print("Argument modele invalide")
+        x,z = modele3(t, m, n, h, ct, cm, c, Rt, Rm, R, A, P, k, delta, T, checkpoints)
+        res = (x)
 
     else :
         print("Argument modele invalide")

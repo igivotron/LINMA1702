@@ -20,19 +20,20 @@ if __name__ == '__main__':
 
     ### Modele 1
 
-    P, k = 10000, 0.4
+    P, k = 500000, 0.17
 
     print("Valeurs utilisées : P = {} ; k = {}".format(P,k))
     
     print("Resolution du probleme lineaire...")
-    (x), z, sol = optimize(onshore_capa, offshore_capa, onshore_rend, offshore_rend, P, k, modele=1)
+    # (x), z, sol = optimize(onshore_capa, offshore_capa, onshore_rend, offshore_rend, P, k, modele=1)
+    (x), z, sol = optimize(onshore_capa, offshore_capa, onshore_rend, offshore_rend, P, k, delta=0.02, T=3,  modele=3)
 
-    print("Affichage des sites concernés sur une carte de l'Europe...")
+    #print("Affichage des sites concernés sur une carte de l'Europe...")
     plotMap(data, x)
 
     ##
-    print("Vecteur de solutions x : {}".format(x))
-    print(np.nonzero(x))
+    #print("Vecteur de solutions x : {}".format(x))
+    #print(np.nonzero(x))
     ## A retirer d'apres moi (peut-on faire les checks de maniere interne et ne pas encombrer le main ? :))
 
     print("Minimum de l'énergie produite en une heure, ou fonction objectif : {} MWh".format(z))
