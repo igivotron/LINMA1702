@@ -91,10 +91,13 @@ def make_comparison1 (P,k,n,min,max) :
     plt.xlabel("S [MWh]")
     plt.ylabel("z [MWh]")
     plt.stem(S_values,z_values,label="minimum de l'energie produite + achetee")
-    plt.stem(S_values,Etot_values,label='energie totale produite')
+    #plt.stem(S_values,Etot_values,label='energie totale produite')
     plt.title("Graphe de l'objectif selon la qté max d'énergie pouvant être achetée sur l'année, P = {}, k = {}".format(P,k),y=1.08)
+    plt.legend() # a ajt dans comparison2
     name = "Q2_zselonS_i1_{}values.png".format(n)
     plt.savefig(name,bbox_inches='tight')
+
+## modifs : couleurs differentes, observer la variation de l'energie produite et de l'energie totale
 
 def test_a_bunch1():
     ## a ameliorer
