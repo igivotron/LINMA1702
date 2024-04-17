@@ -35,7 +35,7 @@ P,k = 5e5, 0.17
 ### B = P0*h = P*h + S
 ### Ce calcul est bien entendu fictif et B n'a aucun sens monétaire. Il sert juste à mettre en regard les deux valeurs.
 
-interpretation = 2
+interpretation = 1
 
 ###################################
 ## Relatif a l'interpretation 1 ###
@@ -80,15 +80,18 @@ def make_comparison1 (P,k,n,min,max) :
 
     S_values = np.linspace(min,max,n)
     z_values = np.zeros((n))
+    Etot_values = np.zeros((n))
 
     for i in range (n) :
         print("point : ",i)
-        z_values[i] = optimize(ct,cm,Rt,Rm,P,k,modele=2,S=S_values[i])[1]
+        (x,s), z_values[i], sol = optimize(ct,cm,Rt,Rm,P,k,modele=2,S=S_values[i])
+        Etot_values[i] = sol.Etot
 
     plt.figure()
     plt.xlabel("S [MWh]")
     plt.ylabel("z [MWh]")
-    plt.stem(S_values,z_values)
+    plt.stem(S_values,z_values,label="minimum de l'energie produite + achetee")
+    plt.stem(S_values,Etot_values,label='energie totale produite')
     plt.title("Graphe de l'objectif selon la qté max d'énergie pouvant être achetée sur l'année, P = {}, k = {}".format(P,k),y=1.08)
     name = "Q2_zselonS_i1_{}values.png".format(n)
     plt.savefig(name,bbox_inches='tight')
@@ -123,7 +126,8 @@ if (interpretation == 1) :
 # 1e7 ...
 
 ### Hypotheses
-# pas ok quand P trop grand ? >= 1.4e6 (tests faits avec modele1) (verif modele 2 que P = 1.4e6 ok, P = 1.5e6 pas ok)
+# pour des valeurs de P trop grandes (P >= 1.4e6), la résolution du problème d'optimisation est impossible.
+# vérifier : quelle est la somme de toutes les capacités ?
 
 
 ###################################
@@ -168,17 +172,20 @@ def make_comparison2 (P0,k,n) :
     
     S_values = np.linspace(min,max,n)
     z_values = np.zeros((n))
+    Etot_values = np.zeros((n))
 
     P_values = ( P0*h - S_values ) / h
 
     for i in range (n) :
         print("point : ",i)
-        z_values[i] = optimize(ct,cm,Rt,Rm,P_values[i],k,modele=2,S=S_values[i])[1]
+        (x,s), z_values[i], sol = optimize(ct,cm,Rt,Rm,P_values[i],k,modele=2,S=S_values[i])
+        Etot_values[i] = sol.Etot
 
     plt.figure()
     plt.xlabel("S [MWh]")
     plt.ylabel("z [MWh]")
-    plt.stem(S_values,z_values)
+    plt.stem(S_values,z_values,label="minimum de l'energie produite + achetee")
+    plt.stem(S_values,Etot_values,label="energie totale produite")
     plt.title("Graphe de l'objectif selon la qté max d'énergie pouvant être achetée sur l'année, P0 = {}, k = {}".format(P0,k),y=1.08)
     name = "Q2_zselonS_i2_{}values.png".format(n)
     plt.savefig(name,bbox_inches='tight')
@@ -187,29 +194,3 @@ if (interpretation == 2) :
     make_comparison2(P,k,10)
 
 # 1e5, 0.4
-
-
-
-#########################
-### Choix des valeurs ###
-#########################
-
-P = 5e5
-k = 0.17
-S = 8e6
-
-def make_graph_Q2B(P,k,S) :
-    """
-    Produit le graphe de l'énergie produite, achetée et totale en fonction du temps, en fonction des valeurs P, k et S données.
-    Cette fonction effectue l'optimisation et graphe l'ensemble,
-    Puis sauve la figure au nom 
-    """
-
-    (x,s), z, sol = optimize(ct, cm, Rt, Rm, P, k, modele=2, S=S)
-
-    time = np.arange(0,np.size(s))
-    plt.plot(time,sol.E,'blue',label='Energie produite')
-    plt.plot(time,s,'green',label='Energie achetee')
-    plt.plot(time,sol.E+s,'red',label='somme')
-    plt.legend()
-    plt.show()

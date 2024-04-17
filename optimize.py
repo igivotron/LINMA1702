@@ -99,6 +99,16 @@ def optimize (ct, cm, Rt, Rm, P, k, modele = 1, S=0, delta=0, T=0, checkpoints =
     A = c[:, np.newaxis] * R
 
 
+    ## Checking the realism of the given data
+    # en considerant que les conditions c@x = P et cm@xm = k*P sont d'application pour les trois modeles
+
+    maxCAPACITY = np.sum(c)
+    maxOFFSHORECAPACITY = np.sum(cm)
+    if (P > maxCAPACITY) :
+        print("Le problème est insoluble car la puissance totale demandée est trop grande.")
+    if (k*P > maxOFFSHORECAPACITY) :
+        print("Le problème est insoluble car la puissance totale offshore demandée est trop grande.")
+
     ## Resolution
     if (modele == 1) :
         x,z = modele1(t,m,n,h,ct,cm,c,Rt,Rm,R,A,P,k,checkpoints)

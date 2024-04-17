@@ -314,25 +314,8 @@ def modele3(t, m, n, h, ct, cm, c, Rt, Rm, R, A, P, k, delta, T, checkpoints):
         print("There was a trouble with the usage of linprog : the problem could not be optimized")
         print(res.message)
 
-    print(res)
     v = res.x
     z = -res.fun
     x = v[0:n]
 
-    if checkpoints:
-        print("Checking : is x the correct size ?", len(x) == n)
-        print("Sanity check : as z is the last variable and the objective for linprog, is z equal to v[-1] ?",
-              z == v[-1])
-        print("Sanity check : is the production c @ x equal to the argument P ?", abs(c @ x - P) < 1e-9)
-        print("Sanity check : is the off-shore production cm @ xm equal to k*P ?", abs(cm @ x[t:n] - k * P) < 1e-9)
-        boundcheck = True
-        for i in range(n):
-            if (x[i] < 0) or (x[i] > 1):
-                boundcheck = False
-        print("Sanity check : are all x's taking values between 0 and 1 ?", boundcheck)
-        mincheck = True
-        for i in range(h):
-            if (z - A[:, i] @ x > 1e-9):
-                mincheck = False
-        print("Sanity check : is z the minimum of production for all hours ?", mincheck)
     return x, z

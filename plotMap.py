@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def plotMap(data, x, size = 10, perSize = True):
+def plotMap(data, x, size = 10, perSize = True, name="bigIronFan"):
     """
     Plots the map
     :param data:data
@@ -31,5 +31,5 @@ def plotMap(data, x, size = 10, perSize = True):
         x = np.where(x==0, 0, 1)
     gdf.plot(ax=ax, color=data.color(), markersize=x*size, aspect="equal")
 
-    plt.savefig("bigIronFan.png")
+    plt.savefig(name+".png")
     plt.show()
