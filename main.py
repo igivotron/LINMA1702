@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     print("\nMODELE 2 : RESOLUTION\n")
 
-    S = 8e6
+    S = 2e8
 
     print("Valeurs utilisées : P = {} ; k = {} ; S = {}\n".format(P,k,S))
     

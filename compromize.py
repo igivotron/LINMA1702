@@ -41,7 +41,7 @@ interpretation = 1
 ## Relatif a l'interpretation 1 ###
 ###################################
 
-def make_comparison1 (P,k,n,min,max) :
+def make_comparison1 (P,k,n,min,max,exp=False) :
     """
     Produit et sauve le graphe des valeurs z selon S. Le graphe contient n points.
     Cette fonction effectue, pour n valeurs de S réparties entre min et max,
@@ -54,14 +54,13 @@ def make_comparison1 (P,k,n,min,max) :
     P : puissance totale installable
     k : portion de P devant etre attribuee a des sites offshore
     n : nombre de résolutions à effectuer 
-    min : plus petite valeur de S à utiliser
-    max : plus grande valeur de S à utiliser
+    exp : booleen indiquant si les valeurs de S sont prises ou non exponentiellement
+    par défaut = False
+    si exp = True, les valeurs de S sont prises exponentiellement entre 10^min et 10^max
+    si exp = False, les valeurs de S sont prises lineairement entre min et max
 
     Returns :
     None
-
-    Advice :
-    max should be around 1e2 - 1e5 * P
 
     Le probleme d'optimisation dont il est question ici est celui correspondant à la question 2A du projet.
     
@@ -78,24 +77,39 @@ def make_comparison1 (P,k,n,min,max) :
     plus petite valeur d'énergie théoriquement obtenue sur une heure).
     """
 
-    S_values = np.linspace(min,max,n)
+    if exp :
+        S_exp = np.linspace(min,max,n)
+        S_values = 10**S_exp
+    else :
+        S_values = np.linspace(min,max,n)
     z_values = np.zeros((n))
     Etot_values = np.zeros((n))
+    stot_values = np.zeros((n))
 
     for i in range (n) :
         print("point : ",i)
         (x,s), z_values[i], sol = optimize(ct,cm,Rt,Rm,P,k,modele=2,S=S_values[i])
         Etot_values[i] = sol.Etot
+        stot_values[i] = np.sum(s)
 
     plt.figure()
     plt.xlabel("S [MWh]")
     plt.ylabel("z [MWh]")
-    plt.stem(S_values,z_values,label="minimum de l'energie produite + achetee")
-    #plt.stem(S_values,Etot_values,label='energie totale produite')
+    if exp :
+        plt.semilogx(S_values,z_values,label="minimum de l'energie produite + achetee")
+        plt.semilogx(S_values,Etot_values/8760,label="energie totale produite/nb d'heures")
+        plt.semilogx(S_values,stot_values/8760,label="energie totale achetee/nb d'heures")
+        plt.semilogx(S_values,(Etot_values+stot_values)/8760,label="energie totale disponible/nb d'heures")
+    else :
+        plt.stem(S_values,z_values,linefmt='C2-',markerfmt='C2x',basefmt='C2',label="minimum de l'energie produite + achetee")
+        plt.stem(S_values,Etot_values/8760,linefmt='C1-',markerfmt='C1o',basefmt='C1',label="energie totale produite/nb d'heures")
+        plt.stem(S_values,stot_values/8760,linefmt='C0-',markerfmt='C0o',basefmt='C0',label="energie totale achetee/nb d'heures")
+        plt.stem(S_values,(Etot_values+stot_values)/8760,linefmt='C3-',markerfmt='C3o',basefmt='C3',label="energie totale disponible/nb d'heures")
     plt.title("Graphe de l'objectif selon la qté max d'énergie pouvant être achetée sur l'année, P = {}, k = {}".format(P,k),y=1.08)
-    plt.legend() # a ajt dans comparison2
+    plt.legend()
     name = "Q2_zselonS_i1_{}values.png".format(n)
     plt.savefig(name,bbox_inches='tight')
+    plt.show()
 
 ## modifs : couleurs differentes, observer la variation de l'energie produite et de l'energie totale
 
@@ -109,28 +123,14 @@ def test_a_bunch1():
                 make_comparison1 (P,k,n_points,0,max)
 
 if (interpretation == 1) :
-    make_comparison1(P,k,10,0,1e10)
+    make_comparison1(P,k,20,0,1e15,exp=False)
 
 ### Resultat :
 ### z dépend linéairement de S (z = alpha*S + beta)
 
-### Problemes dans la resolution pour certains arguments
-### Args OK : 
-# 1e5, 0, 30, 0, 1e5
-# 1e5, 0, 30, 0, 1e15
-# 1e5, 0.3, 30, 0, 1e5
-# 1e5, 0.3, 30, 0, 1e15
-# 1e5, 0.7, 30, 0, 1e5
-# 1e5, 0.7, 30, 0, 1e5
-# 1e5, 1, 30, 0, 1e5
-# 1e5, 1, 30, 0, 1e5
-### Args PAS OK :
-# 1e8, 0.8, 10, 0, 1e11
-# 1e7 ...
-
 ### Hypotheses
 # pour des valeurs de P trop grandes (P >= 1.4e6), la résolution du problème d'optimisation est impossible.
-# vérifier : quelle est la somme de toutes les capacités ?
+# vérifier : quelle est la somme de toutes les capacités ? 1.42e6 MW
 
 
 ###################################
@@ -175,21 +175,19 @@ def make_comparison2 (P0,k,n) :
     
     S_values = np.linspace(min,max,n)
     z_values = np.zeros((n))
-    Etot_values = np.zeros((n))
 
     P_values = ( P0*h - S_values ) / h
 
     for i in range (n) :
         print("point : ",i)
         (x,s), z_values[i], sol = optimize(ct,cm,Rt,Rm,P_values[i],k,modele=2,S=S_values[i])
-        Etot_values[i] = sol.Etot
 
     plt.figure()
     plt.xlabel("S [MWh]")
     plt.ylabel("z [MWh]")
     plt.stem(S_values,z_values,label="minimum de l'energie produite + achetee")
-    plt.stem(S_values,Etot_values,label="energie totale produite")
     plt.title("Graphe de l'objectif selon la qté max d'énergie pouvant être achetée sur l'année, P0 = {}, k = {}".format(P0,k),y=1.08)
+    plt.title()
     name = "Q2_zselonS_i2_{}values.png".format(n)
     plt.savefig(name,bbox_inches='tight')
 
