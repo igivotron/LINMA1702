@@ -123,7 +123,7 @@ def test_a_bunch1():
                 make_comparison1 (P,k,n_points,0,max)
 
 if (interpretation == 1) :
-    make_comparison1(P,k,20,0,1e15,exp=False)
+    make_comparison1(P,k,10,0,5e9,exp=False)
 
 ### Resultat :
 ### z dépend linéairement de S (z = alpha*S + beta)

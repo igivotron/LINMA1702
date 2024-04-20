@@ -134,10 +134,10 @@ def optimize (ct, cm, Rt, Rm, P, k, modele = 1, S=0, delta=0, T=0, checkpoints =
 
     for j in range (h) :
         E[j]   =  x @ A[:,j]
-        Rm[j] = x @ R[:, j]
+        Rm[j] = x @ A[:, j]
 
     if (np.sum(x) != 0) :
-        Rm = Rm/np.sum(x)
+        Rm = Rm/(c@x)
 
     Etot = np.sum(E)
     Rmtot = np.sum(Rm)/h

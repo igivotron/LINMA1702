@@ -31,7 +31,9 @@ def graph_rendements (Rm, nticks=None, scale = 'heures', name=None) :
 
     ## Calibrage de l'axe des abscisses selon l'argument scale
     plot_time = plot_hours
-    if (scale == 'jours') :
+    if (scale=='heures'):
+        pass
+    elif (scale == 'jours') :
         plot_time = plot_time/24
     elif (scale == 'semaines') :
         plot_time = plot_time/168
@@ -161,3 +163,51 @@ def graph_Q2energy(E, s, nticks=None, scale='heures', name=None) :
     if (name != None) :
         plt.savefig(name + '.png', bbox_inches='tight')
     plt.show()   
+
+
+def graph_comparison (Edisp1, Edisp2, x1, x2, nticks=None, scale='heures', name=None, modeles=(1,2)) :
+        
+    h = np.size(Edisp1)
+
+    if (nticks != None) :
+    ## Espacement des valeurs (sampling)
+        step = h // min(nticks,h)
+        plot_hours = np.arange(0,h)[::step]
+        plot_Edisp1 = Edisp1[::step]
+        plot_Edisp2 = Edisp2[::step]
+    else :
+        plot_hours, plot_Edisp1, plot_Edisp2 = np.arange(0,h), Edisp1, Edisp2
+
+    ## Calibrage de l'axe des abscisses selon l'argument scale
+    plot_time = plot_hours
+    if (scale == 'jours') :
+        plot_time = plot_time/24
+    elif (scale == 'semaines') :
+        plot_time = plot_time/168
+    elif (scale == 'mois') :
+        plot_time = plot_time/730
+    else :
+        print("Argument 'scale' is invalid. Graph is scaled with hours.")
+
+    plt.figure("Comparaison des deux modèles au niveau des sites éoliens installés et des énergies produites")
+
+    plt.subplot(2,1,1)
+    plt.title("Energie disponible au cours de l'année pour les deux modèles")
+    plt.plot(plot_time, plot_Edisp1, label="modele {}".format(modeles[0]))
+    plt.plot(plot_time, plot_Edisp2, label="modele {}".format(modeles[1]))
+    plt.xlabel("temps [{}]".format(scale))
+    plt.ylabel("energie disponible [MWh]")
+    plt.legend()
+
+    plt.subplot(2,1,2)
+    plt.title("Différence en portions des sites installés pour les deux modèles (x{} - x {})".format(modeles[0],modeles[1]))
+    plt.stem(np.arange(0,np.size(x1)), (x1-x2)*100, linefmt='C0:', markerfmt='C0.', basefmt='C0', label="diff")
+    plt.xlabel("indice des sites [-]")
+    plt.ylabel("portion installee [%]")
+    plt.legend()
+
+    plt.subplots_adjust(hspace=0.5)
+
+    if (name != None) :
+        plt.savefig(name + '.png', bbox_inches='tight')
+    plt.show()
