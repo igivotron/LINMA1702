@@ -9,8 +9,9 @@ def plotMap(data, x, size = 10, perSize = True, name="bigIronFan"):
     Plots the map
     :param data:data
     :param x:x
-    :param size: points default size
-    :param perSize: Change the size of the points
+    :param size: points default size (default 10)
+    :param perSize: change the size of the points (default True)
+    :param name: name of the image to save
     """
 
     df = pd.DataFrame({

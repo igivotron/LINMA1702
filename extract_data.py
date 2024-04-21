@@ -1,4 +1,5 @@
 import numpy as np
+
 class ExtractData:
     def __init__(self, sites_file, onshore_file, offshore_file, n=642):
         """
@@ -6,7 +7,7 @@ class ExtractData:
         :param sites_file: Nom du fichier contenant les sites
         :param onshore_file: Nom du fichier contenant les données onshore
         :param offshore_file: Nom du fichier contenant les données offshore
-        :param n: Nombre de site à visiter
+        :param n: Nombre de sites à visiter
         """
         self.sites_file = sites_file
         self.onshore_file = onshore_file
@@ -23,7 +24,7 @@ class ExtractData:
         with open(self.sites_file, 'r') as f:
             lines = f.read()
 
-        ### On coupe le contenu du fichier en ligne puis en colonne
+        ### On coupe le contenu du fichier en lignes puis en colonnes
         if self.n != 642:
             lines1 = lines.split("\n")[1:1+self.n_onshore]
             lines2 = lines.split("\n")[489:489+self.n_offshore]
@@ -71,7 +72,7 @@ class ExtractData:
         return np.array(list_onshore).astype(np.float64)
 
     def offshore_rendements(self):
-        ### On ouvre le fichier des données offshores et crée une liste de string à partir des données
+        ### On ouvre le fichier des données offshore et crée une liste de string à partir des données
         with open(self.offshore_file, 'r') as f:
             lines = f.read()
 

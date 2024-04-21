@@ -23,7 +23,7 @@ P,k = 5e5, 0.17
 ### On resout le probleme d'optimisation,
 ### et on observe la variation de l'objectif atteint z.
 
-### Ensuite, on choisit un couple de valeurs (S,z) qui semble adapté et on graphe le résultat ()
+### Ensuite, on choisit un couple de valeurs (S,z) qui semble adapté et on graphe le résultat.
 
 ### Deux interpretations sont possibles :
  
@@ -35,7 +35,9 @@ P,k = 5e5, 0.17
 ### B = P0*h = P*h + S
 ### Ce calcul est bien entendu fictif et B n'a aucun sens monétaire. Il sert juste à mettre en regard les deux valeurs.
 
+### La premiere interprétation est gardée (c'est celle qui est décrite dans le rapport)
 interpretation = 1
+
 
 ###################################
 ## Relatif a l'interpretation 1 ###
@@ -43,12 +45,16 @@ interpretation = 1
 
 def make_comparison1 (P,k,n,min,max,exp=False) :
     """
-    Produit et sauve le graphe des valeurs z selon S. Le graphe contient n points.
+    Produit et sauve le graphe des valeurs z, énergie produite, énergie achetée, énergie disponible, selon S. 
+    Le graphe contient n*4 points.
     Cette fonction effectue, pour n valeurs de S réparties entre min et max,
     la résolution du problème d'optimisation décrit plus bas, prenant en paramètres P, k, et S.
-    Elle affiche sur le graphe l'ensemble des points (S,z) obtenus, où z est l'objectif atteint du problème d'optimisation.
-
-    remarque : n n'a ici rien à voir avec le "nombre de sites" n utilisé tout au long de ce projet
+    Elle affiche sur le graphe l'ensemble des points (S,z), (S,Eprod/h) (S,Each/h), (S,Edisp/h) obtenus, 
+    où z est l'objectif atteint du problème d'optimisation,
+    Eprod est l'énergie produite sur un an,
+    Each est l'énergie achetée sur un an,
+    Edisp est l'énergie disponible (Eprod + Each) sur un an.
+    Les trois sont calibrées (divisées par le nombre de périodes h) dans le but d'être visuellement comparables avec la valeur z.
 
     Args :
     P : puissance totale installable
@@ -62,11 +68,12 @@ def make_comparison1 (P,k,n,min,max,exp=False) :
     Returns :
     None
 
+    RAPPEL :
     Le probleme d'optimisation dont il est question ici est celui correspondant à la question 2A du projet.
     
     Pour un ensemble de sites éoliens onshore et offshore, 
-    dont on connaît la capacité nominale et le rendement théorique par heure sur un an,
-    Pour une valeur P (puissance nominale totale installable),
+    dont on connaît la capacité et le rendement théorique par heure sur un an,
+    Pour une valeur P (puissance totale installable),
     Une portion de cette valeur kP devant etre attribuée à des sites offshore,
     On fait varier S (limite sur l'énergie de source non éolienne achetée sur l'année),
     Et on resout le probleme d'optimisation,
@@ -82,6 +89,7 @@ def make_comparison1 (P,k,n,min,max,exp=False) :
         S_values = 10**S_exp
     else :
         S_values = np.linspace(min,max,n)
+
     z_values = np.zeros((n))
     Etot_values = np.zeros((n))
     stot_values = np.zeros((n))
@@ -94,7 +102,7 @@ def make_comparison1 (P,k,n,min,max,exp=False) :
 
     plt.figure()
     plt.xlabel("S [MWh]")
-    plt.ylabel("z [MWh]")
+    plt.ylabel("energie [MWh]")
     if exp :
         plt.semilogx(S_values,z_values,label="minimum de l'energie produite + achetee")
         plt.semilogx(S_values,Etot_values/8760,label="energie totale produite/nb d'heures")
@@ -105,37 +113,25 @@ def make_comparison1 (P,k,n,min,max,exp=False) :
         plt.stem(S_values,Etot_values/8760,linefmt='C1-',markerfmt='C1o',basefmt='C1',label="energie totale produite/nb d'heures")
         plt.stem(S_values,stot_values/8760,linefmt='C0-',markerfmt='C0o',basefmt='C0',label="energie totale achetee/nb d'heures")
         plt.stem(S_values,(Etot_values+stot_values)/8760,linefmt='C3-',markerfmt='C3o',basefmt='C3',label="energie totale disponible/nb d'heures")
-    plt.title("Graphe de l'objectif selon la qté max d'énergie pouvant être achetée sur l'année, P = {}, k = {}".format(P,k),y=1.08)
+    plt.title("Résolutions : résultats selon la contrainte S",y=1.08)
     plt.legend()
     name = "Q2_zselonS_i1_{}values.png".format(n)
     plt.savefig(name,bbox_inches='tight')
     plt.show()
 
-## modifs : couleurs differentes, observer la variation de l'energie produite et de l'energie totale
-
-def test_a_bunch1():
-    ## a ameliorer
-    n_points = 30
-    for P in [1e5, 1e7, 1e9] :
-        for k in [0, 0.3, 0.7, 1] :
-            for max in [1e5, 1e15] :
-                print("Computing {} points, S going from 0 to {}, P = {}, k = {}".format(n_points,max,P,k))
-                make_comparison1 (P,k,n_points,0,max)
 
 if (interpretation == 1) :
-    make_comparison1(P,k,10,0,5e9,exp=False)
+    make_comparison1(P,k,20,0,1e8,exp=False)
 
-### Resultat :
-### z dépend linéairement de S (z = alpha*S + beta)
+# Valeurs de max pour S utilisées : 1e15, 1e10, 5e9, 1e9, 1e8, 1e7
 
-### Hypotheses
-# pour des valeurs de P trop grandes (P >= 1.4e6), la résolution du problème d'optimisation est impossible.
-# vérifier : quelle est la somme de toutes les capacités ? 1.42e6 MW
 
 
 ###################################
 ## Relatif a l'interpretation 2 ###
 ###################################
+
+## Remarque : l'interprétation 2 a été vite mise de côté, pour cette raison, la fonction make_comparison2 est moins développée que make_comparison1.
 
 def make_comparison2 (P0,k,n) :
     """
@@ -154,6 +150,7 @@ def make_comparison2 (P0,k,n) :
     Returns :
     None
 
+    RAPPEL : 
     Le probleme d'optimisation dont il est question ici est celui correspondant à la question 2A du projet.
     
     Pour un ensemble de sites éoliens onshore et offshore, 
@@ -193,5 +190,3 @@ def make_comparison2 (P0,k,n) :
 
 if (interpretation == 2) :
     make_comparison2(P,k,10)
-
-# 1e5, 0.4

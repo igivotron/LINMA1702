@@ -113,7 +113,7 @@ def graph_Q2energy(E, s, nticks=None, scale='heures', name=None) :
 
     Args :
     - E, numpy array de taille h, évolution de l'énergie produite au cours du temps
-    -s, numpy array de taille h, évolution de l'énergie achetée au cours du temps
+    - s, numpy array de taille h, évolution de l'énergie achetée au cours du temps
     - nticks, scalaire (optionnel : par défaut None), nombre d'abscisses à considérer pour les deux graphes
     (si nticks = None, le nombre de graduations est h)
     - scale, chaîne de caractères (optionnel : par défaut 'heures'), indique la légende de l'axe des abscisses pour les deux graphes
