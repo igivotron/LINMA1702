@@ -2,7 +2,7 @@ import numpy as np
 from time import time
 import matplotlib.pyplot as plt
 from optimize import optimize
-from extract_data import ExtractData
+from P1.extract_data import ExtractData
 
 sites_file = "Data-partie-1/Sites.csv"
 onshore_file = "Data-partie-1/Rendements_onshore.csv"

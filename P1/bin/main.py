@@ -1,7 +1,7 @@
-import extract_data as ext
-from optimize import optimize
-from plotMap import plotMap
-from graphs import graph_rendements, graph_Q1energy, graph_Q2energy
+from P1 import extract_data as ext
+from P1.optimize import optimize
+from P1.plotMap import plotMap
+from P1.graphs import graph_rendements, graph_Q1energy, graph_Q2energy
 
 import numpy as np ## pourra etre retiré lorsque np ne sera plus employe
 

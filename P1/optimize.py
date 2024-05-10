@@ -1,5 +1,5 @@
 import numpy as np
-from modeles import modele1, modele2, modele3
+from P1.modeles import modele1, modele2, modele3
 
 class Solution :
     """
