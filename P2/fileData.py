@@ -70,4 +70,6 @@ class FileData:
     def getColor(self):
         return self.__sitesData["couleur"].values
 
-
+data = FileData()
+print(data.getOffshoreCapacites().shape)
+print(data.getOnshoreCapacites().shape)
