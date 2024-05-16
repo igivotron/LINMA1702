@@ -1,0 +1,10 @@
+time.csv contient les temps de résolution pour les trois modèles et différents horizons temporels,
+avec des modèles agrégés pour toute l'Europe (un grand bassin)
+prixmoy.csv contient les prix moyens de l'énergie après résolution pour les trois modèles et différents horizons temporels
+
+Dans time.csv est seulement noté le temps de résolution (pas celui de production des matrices, des contraintes, du problème),
+pour CVXPY, solver=cp.SCIPY,
+en secondes.
+
+Les rangées correspondent chacune à un des trois modèles, qui correspondent aux trois questions (4,5,6)
+Les colonnes correspondent aux valeurs d'horizon temporel utilisées.
