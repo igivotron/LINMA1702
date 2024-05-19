@@ -6,15 +6,17 @@ def print_values_get_prixmoy(prix_total, e_eolienne_produite, apports_naturels, 
     prix_moyen = prix_total/(e_eolienne_produite + apports_naturels + e_gaz_produite)
     perte = e_eolienne_produite + apports_naturels + e_gaz_produite - demande_totale
 
-    print("Energie éolienne produite, {:.2f} MWh".format(e_eolienne_produite))
-    print("Apports naturels         , {:.2f} MWh".format(apports_naturels))
-    print("Energie (gaz) produite   , {:.2f} MWh".format(e_gaz_produite))
-    print("Total                    , {:.2f} MWh".format(e_eolienne_produite + apports_naturels + e_gaz_produite))
-    print("Demande totale satisfaite, {:.2f} MWh".format(demande_totale))
+    print("Energie éolienne produite    : {:.2f} MWh".format(e_eolienne_produite))
+    print("Apports naturels             : {:.2f} MWh".format(apports_naturels))
+    print("Energie (gaz) produite       : {:.2f} MWh".format(e_gaz_produite))
+    print("Total                        : {:.2f} MWh".format(e_eolienne_produite + apports_naturels + e_gaz_produite))
+    print("Demande totale satisfaite    : {:.2f} MWh".format(demande_totale))
     print("\n")
     print("Prix total, {:.2f} euros".format(prix_total))
     print("Prix moyen, {:.2f} euros/MWh".format(prix_moyen))
     return prix_moyen
+    print("Prix total                   : {:.2f} euros".format(prix_total))
+    print("Prix moyen                   : {:.2f} euros/MWh".format(prix_moyen))
 
 
 def occupation_bassin(t, s, wA, wP, wT) :
