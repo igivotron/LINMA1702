@@ -69,3 +69,6 @@ class FileData:
 
     def getColor(self):
         return self.__sitesData["couleur"].values
+    
+    def getCountry(self):
+        return self.__sitesData["pays"].values
