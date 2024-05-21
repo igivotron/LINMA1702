@@ -3,7 +3,7 @@ import numpy as np
 
 def print_values_get_prixmoy(prix_total, e_eolienne_produite, apports_naturels, demande_totale, e_gaz_produite=0) :
 
-    prix_moyen = prix_total/(e_eolienne_produite + apports_naturels + e_gaz_produite)
+    prix_moyen = prix_total/demande_totale
     perte = e_eolienne_produite + apports_naturels + e_gaz_produite - demande_totale
 
     print("Energie éolienne produite    : {:.2f} MWh".format(e_eolienne_produite))
